@@ -1,6 +1,5 @@
-# Speech-to-Text Web Application
+# Speech-to-Text Web Application (Crawl It)
 
-A Streamlit-based web application that provides speech-to-text and text-to-speech functionality with a modern, responsive UI.
 Crawl It is a web-based application that transforms reading into listening. Extract clean text content from any web article and convert it to natural-sounding speech with text-to-speech controls. Perfect for accessibility, multitasking, or consuming content on the go.
 
 ## Features:
