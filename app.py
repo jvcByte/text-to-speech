@@ -183,7 +183,7 @@ st.markdown("""
 # Hero header
 st.markdown('''
 <div class="hero-container">
-    <h1 class="hero-title">🔊 Crawl It</h1>
+    <h1 class="hero-title">🔊 Crawl It 🔊</h1>
     <p class="hero-subtitle">Transform any article or text into natural-sounding speech</p>
     <p class="hero-subtitle">Copy and paste a link to any article or paste the raw text using the text input and listen to them instantly</p>
 </div>
