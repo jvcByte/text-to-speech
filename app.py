@@ -7,192 +7,127 @@ from bs4 import BeautifulSoup
 
 # Page configuration
 st.set_page_config(
-    page_title="Web Reader PWA 🔊",
+    page_title="Crawl It 🔊",
     page_icon="🔊",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Add viewport meta tag for mobile responsiveness
-st.markdown(
-    """
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    """,
-    unsafe_allow_html=True
-)
-
-# Modern CSS with glassmorphism and animations
+# Clean, modern CSS with consistent styling
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-    /* Root variables */
-    :root {
-        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        --glass-bg: rgba(255, 255, 255, 0.1);
-        --glass-border: rgba(255, 255, 255, 0.2);
-        --text-primary: #2d3748;
-        --text-secondary: #4a5568;
-        --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    }
-
-    /* Hide Streamlit elements */
+    /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Body and main container */
+    /* App background */
     .stApp {
-        background: var(--bg-primary);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         font-family: 'Inter', sans-serif;
         min-height: 100vh;
-        display: flex;
-        flex-direction: column;
     }
 
+    /* Main container */
     .main .block-container {
-        padding: 1rem 1rem 2rem;
-        max-width: 1200px;
-        width: 100%;
+        padding: 1rem;
+        max-width: 1000px;
         margin: 0 auto;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
     }
 
-    /* Header with glassmorphism */
-    .hero-header {
+    /* Hero header */
+    .hero-container {
         text-align: center;
         padding: 2rem;
-        margin: 0 0 2rem 0;
-        background: var(--glass-bg);
+        margin-bottom: 2rem;
+        background: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(10px);
-        border: 1px solid var(--glass-border);
         border-radius: 20px;
-        box-shadow: var(--shadow);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
 
     .hero-title {
-        font-size: 3rem;
+        font-size: 2.5rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: white;
         margin-bottom: 0.5rem;
-        text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .hero-subtitle {
         color: rgba(255, 255, 255, 0.9);
         font-size: 1.1rem;
-        font-weight: 400;
-        margin-bottom: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Content cards */
+    .content-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-header {
+        color: white;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .section-subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
     }
 
     /* Tabs styling */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
-        padding: 0 0.5rem;
-        flex-wrap: wrap;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        flex: 1;
-        min-width: 120px;
-        text-align: center;
-    }
-    
-    @media (max-width: 480px) {
-        .stTabs [data-baseweb="tab"] {
-            min-width: 100%;
-            margin-bottom: 4px;
-        }
+        margin-bottom: 1rem;
     }
 
     .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        white-space: pre-wrap;
-        background: var(--glass-bg);
+        background: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(10px);
-        border: 1px solid var(--glass-border);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         color: white;
-        border-radius: 15px;
+        border-radius: 12px;
         font-weight: 500;
-        font-size: 0.95rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        padding: 0.75rem 1.5rem;
     }
 
     .stTabs [data-baseweb="tab"]:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow);
         background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
     }
 
     .stTabs [aria-selected="true"] {
         background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    /* Content containers */
-    .content-card {
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--glass-border);
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: var(--shadow);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .content-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    /* Section headers */
-    .section-header {
-        color: white;
-        font-size: 1.4rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .section-subtitle {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.9rem;
-        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     /* Input styling */
     .stTextInput > div > div > input {
         background: rgba(255, 255, 255, 0.1) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
         border-radius: 12px !important;
         color: white !important;
-        font-size: 0.95rem !important;
+        font-size: 1rem !important;
         padding: 0.75rem 1rem !important;
         transition: all 0.3s ease !important;
-        backdrop-filter: blur(10px);
     }
 
     .stTextInput > div > div > input:focus {
-        border: 1px solid rgba(255, 255, 255, 0.4) !important;
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
         box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1) !important;
-        transform: translateY(-1px);
     }
 
     .stTextInput > div > div > input::placeholder {
@@ -201,55 +136,31 @@ st.markdown("""
 
     .stTextArea > div > div > textarea {
         background: rgba(255, 255, 255, 0.1) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
         border-radius: 12px !important;
         color: white !important;
-        min-height: 150px;
-        resize: vertical;
-        font-size: 0.95rem !important;
+        font-size: 1rem !important;
         padding: 1rem !important;
         transition: all 0.3s ease !important;
-        backdrop-filter: blur(10px);
         resize: vertical !important;
     }
 
     .stTextArea > div > div > textarea:focus {
-        border: 1px solid rgba(255, 255, 255, 0.4) !important;
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
         box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1) !important;
-        transform: translateY(-2px);
     }
 
     .stTextArea > div > div > textarea::placeholder {
         color: rgba(255, 255, 255, 0.6) !important;
     }
 
-    /* Success/Error messages */
+    /* Alert styling */
     .stSuccess, .stError, .stInfo {
-        background: var(--glass-bg) !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 12px !important;
+        color: white !important;
         backdrop-filter: blur(10px);
-        border: 1px solid var(--glass-border) !important;
-        border-radius: 12px !important;
-        color: white !important;
-    }
-
-    /* Spinner */
-    .stSpinner {
-        color: white !important;
-    }
-
-    /* Expander */
-    .streamlit-expanderHeader {
-        background: var(--glass-bg) !important;
-        border: 1px solid var(--glass-border) !important;
-        border-radius: 12px !important;
-        color: white !important;
-    }
-
-    .streamlit-expanderContent {
-        background: var(--glass-bg) !important;
-        border: 1px solid var(--glass-border) !important;
-        border-radius: 12px !important;
-        color: white !important;
     }
 
     /* Mobile responsiveness */
@@ -257,14 +168,13 @@ st.markdown("""
         .hero-title {
             font-size: 2rem;
         }
-
+        
         .content-card {
-            padding: 1.5rem;
+            padding: 1rem;
         }
-
-        .stTabs [data-baseweb="tab"] {
-            font-size: 0.85rem;
-            padding: 0 12px;
+        
+        .main .block-container {
+            padding: 0.5rem;
         }
     }
 </style>
@@ -272,14 +182,16 @@ st.markdown("""
 
 # Hero header
 st.markdown('''
-<div class="hero-header">
-    <h1 class="hero-title">🔊 Web Reader PWA</h1>
-    <p class="hero-subtitle">Transform any article or text into natural-sounding speech with AI</p>
+<div class="hero-container">
+    <h1 class="hero-title">🔊 Crawl It</h1>
+    <p class="hero-subtitle">Transform any article or text into natural-sounding speech</p>
+    <p class="hero-subtitle">Copy and paste a link to any article or paste the raw text using the text input and listen to them instantly</p>
 </div>
 ''', unsafe_allow_html=True)
 
 
 def extract_content_multiple_methods(url):
+    """Extract content from URL using multiple methods"""
     try:
         downloaded = trafilatura.fetch_url(url)
         content = trafilatura.extract(downloaded)
@@ -299,7 +211,8 @@ def extract_content_multiple_methods(url):
 
     try:
         response = requests.get(url, headers={
-                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'})
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        })
         soup = BeautifulSoup(response.content, 'html.parser')
 
         for element in soup(['script', 'style', 'nav', 'footer', 'header']):
@@ -321,106 +234,35 @@ def extract_content_multiple_methods(url):
         return {"method": "error", "content": f"Error extracting content: {str(e)}", "title": ""}
 
 
-def create_modern_tts_component():
+def create_tts_component():
+    """Create the Text-to-Speech component"""
     return """
     <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        
         .tts-container {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 16px;
             padding: 1.5rem;
-            margin: 1rem 0;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            # width: 100%;
-            # max-width: 100%;
-            # box-sizing: border-box;
-            # max-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        
-        @media (min-width: 768px) {
-            .tts-container {
-                display: flex;
-                flex-direction: row;
-                flex-wrap: wrap;
-                align-items: flex-start;
-            }
-            
-            .control-group {
-                flex: 1;
-                min-width: 200px;
-                margin: 0.5rem;
-            }
-            
-            .status-display {
-                width: 100%;
-            }
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            font-family: 'Inter', sans-serif;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .control-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
             gap: 12px;
             margin-bottom: 1.5rem;
-            width: 100%;
-            flex-shrink: 0;
-        }
-        
-        @media (max-width: 768px) {
-            .control-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-            }
-            
-            .controls-section {
-                grid-template-columns: 1fr;
-                gap: 1.2rem;
-            }
-            
-            .tts-btn {
-                padding: 10px 12px !important;
-                font-size: 0.85rem !important;
-            }
-            
-            # .tts-container {
-            #     min-height: 400px;
-            #     padding: 1.2rem;
-            # }
-            
-            .control-group {
-                width: 100%;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .control-grid {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-            }
-            
-            .content-card {
-                padding: 1rem !important;
-            }
-            
-            .section-header {
-                font-size: 1.5rem !important;
-            }
-            
-            .section-subtitle {
-                font-size: 0.9rem !important;
-            }
-            
-            .controls-section {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            .control-group {
-                padding: 0.75rem;
-            }
         }
 
         .tts-btn {
@@ -432,112 +274,49 @@ def create_modern_tts_component():
             font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tts-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .tts-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
 
-        .tts-btn:hover::before {
-            left: 100%;
-        }
-
-        .tts-btn:active {
-            transform: translateY(-1px);
-        }
-
-        .tts-btn.stop {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        }
-
-        .tts-btn.pause {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            color: #2d3748;
-        }
-
-        .tts-btn.resume {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
+        .tts-btn.stop { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .tts-btn.pause { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #2d3748; }
+        .tts-btn.resume { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
 
         .status-display {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
             padding: 1rem;
             text-align: center;
             color: white;
             font-weight: 500;
-            margin: 0.5rem 0 1.5rem;
+            margin-bottom: 1.5rem;
             min-height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
         }
 
         .controls-section {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            width: 100%;
-            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
         }
-        
-        .control-group {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        @media (min-width: 768px) {
-            .controls-section {
-                flex-direction: row;
-                flex-wrap: wrap;
-            }
-            
-            .control-group {
-                flex: 1;
-                min-width: 200px;
-            }
-        }
-        
-        # .control-group {
-        #     min-width: 0; /* Prevents flex items from overflowing */
-        # }
 
         .control-group {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
             padding: 1rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            # width: 100%;
-            # box-sizing: border-box;
-            max-width: 100%;
         }
 
         .control-group label {
@@ -545,16 +324,23 @@ def create_modern_tts_component():
             font-weight: 500;
             display: block;
             margin-bottom: 8px;
+            font-size: 0.95rem;
         }
 
         .control-group select {
-            width: 90%;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             color: white;
             padding: 8px 12px;
             font-size: 0.9rem;
+            outline: none;
+        }
+
+        .control-group select:focus {
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
         }
 
         .control-group select option {
@@ -569,103 +355,113 @@ def create_modern_tts_component():
         .range-input {
             -webkit-appearance: none;
             width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: rgba(255, 255, 255, 0.2);
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.3);
             outline: none;
-            transition: all 0.3s ease;
+            margin: 8px 0;
         }
 
         .range-input::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 2px solid white;
             transition: all 0.3s ease;
         }
 
         .range-input::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        }
+
+        .range-input::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 2px solid white;
         }
 
         .range-value {
             position: absolute;
             right: 0;
-            top: -2px;
+            top: -8px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 2px 8px;
-            border-radius: 8px;
+            padding: 4px 10px;
+            border-radius: 12px;
             font-size: 0.8rem;
-            font-weight: 500;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            min-width: 32px;
+            text-align: center;
         }
 
         @media (max-width: 768px) {
             .control-grid {
                 grid-template-columns: 1fr 1fr;
+                gap: 8px;
             }
-
+            
+            .controls-section {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
             .tts-btn {
                 padding: 10px 16px;
                 font-size: 0.85rem;
             }
-
-            .controls-section {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 
-    <div class="tts-container">
-        <div class="control-grid">
-            <button class="tts-btn" onclick="speakText()">
-                🔊 Read Aloud
-            </button>
-            <button class="tts-btn stop" onclick="stopSpeaking()">
-                ⏹️ Stop
-            </button>
-            <button class="tts-btn pause" onclick="pauseSpeaking()">
-                ⏸️ Pause
-            </button>
-            <button class="tts-btn resume" onclick="resumeSpeaking()">
-                ▶️ Resume
-            </button>
-        </div>
-
-        <div class="status-display" id="statusDisplay">
-            Ready to read your content
-        </div>
-
-        <div class="controls-section">
-            <div class="control-group">
-                <label for="voiceSelect">🎤 Voice Selection</label>
-                <select id="voiceSelect" onchange="updateVoice()">
-                    <option value="">Default Voice</option>
-                </select>
+    <body>
+        <div class="tts-container">
+            <div class="control-grid">
+                <button class="tts-btn" onclick="speakText()">🔊 Read Aloud</button>
+                <button class="tts-btn stop" onclick="stopSpeaking()">⏹️ Stop</button>
+                <button class="tts-btn pause" onclick="pauseSpeaking()">⏸️ Pause</button>
+                <button class="tts-btn resume" onclick="resumeSpeaking()">▶️ Resume</button>
             </div>
 
-            <div class="control-group">
-                <label for="speedRange">⚡ Speed</label>
-                <div class="range-container">
-                    <input type="range" class="range-input" id="speedRange" min="0.5" max="2" step="0.1" value="1" onchange="updateSpeed()">
-                    <span class="range-value" id="speedValue">1.0</span>
+            <div class="status-display" id="statusDisplay">
+                Ready to read your content
+            </div>
+
+            <div class="controls-section">
+                <div class="control-group">
+                    <label for="voiceSelect">🎤 Voice Selection</label>
+                    <select id="voiceSelect" onchange="updateVoice()">
+                        <option value="">Default Voice</option>
+                    </select>
                 </div>
-            </div>
 
-            <div class="control-group">
-                <label for="pitchRange">🎵 Pitch</label>
-                <div class="range-container">
-                    <input type="range" class="range-input" id="pitchRange" min="0" max="2" step="0.1" value="1" onchange="updatePitch()">
-                    <span class="range-value" id="pitchValue">1.0</span>
+                <div class="control-group">
+                    <label for="speedRange">⚡ Speed</label>
+                    <div class="range-container">
+                        <input type="range" class="range-input" id="speedRange" min="0.5" max="2" step="0.1" value="1" onchange="updateSpeed()">
+                        <span class="range-value" id="speedValue">1.0</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="pitchRange">🎵 Pitch</label>
+                    <div class="range-container">
+                        <input type="range" class="range-input" id="pitchRange" min="0" max="2" step="0.1" value="1" onchange="updatePitch()">
+                        <span class="range-value" id="pitchValue">1.0</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </body>
 
     <script>
     let currentUtterance = null;
@@ -704,8 +500,7 @@ def create_modern_tts_component():
     function updateSpeed() {
         const range = document.getElementById('speedRange');
         speechRate = parseFloat(range.value);
-        document.getElementById(
-            'speedValue').textContent = speechRate.toFixed(1);
+        document.getElementById('speedValue').textContent = speechRate.toFixed(1);
         updateStatus('⚡ Speed adjusted');
         setTimeout(() => updateStatus('Ready to read your content'), 2000);
     }
@@ -713,8 +508,7 @@ def create_modern_tts_component():
     function updatePitch() {
         const range = document.getElementById('pitchRange');
         speechPitch = parseFloat(range.value);
-        document.getElementById(
-            'pitchValue').textContent = speechPitch.toFixed(1);
+        document.getElementById('pitchValue').textContent = speechPitch.toFixed(1);
         updateStatus('🎵 Pitch adjusted');
         setTimeout(() => updateStatus('Ready to read your content'), 2000);
     }
@@ -723,10 +517,6 @@ def create_modern_tts_component():
         const statusDiv = document.getElementById('statusDisplay');
         if (statusDiv) {
             statusDiv.textContent = message;
-            statusDiv.style.transform = 'scale(1.05)';
-            setTimeout(() => {
-                statusDiv.style.transform = 'scale(1)';
-            }, 200);
         }
     }
 
@@ -756,7 +546,7 @@ def create_modern_tts_component():
         if (!isPlaying || currentChunkIndex >= textChunks.length) {
             if (currentChunkIndex >= textChunks.length) {
                 isPlaying = false;
-                updateStatus('✅ Reading completed successfully!');
+                updateStatus('✅ Reading completed!');
                 setTimeout(() => updateStatus('Ready to read your content'), 3000);
             }
             return;
@@ -765,131 +555,89 @@ def create_modern_tts_component():
         const chunk = textChunks[currentChunkIndex];
         updateStatus(`🗣️ Reading part ${currentChunkIndex + 1} of ${textChunks.length}...`);
 
-        try {
-            currentUtterance = new SpeechSynthesisUtterance(chunk);
+        currentUtterance = new SpeechSynthesisUtterance(chunk);
+        
+        if (selectedVoice) currentUtterance.voice = selectedVoice;
+        currentUtterance.rate = speechRate;
+        currentUtterance.pitch = speechPitch;
+        currentUtterance.volume = 1;
 
-            if (selectedVoice) {
-                currentUtterance.voice = selectedVoice;
-            }
-            currentUtterance.rate = speechRate;
-            currentUtterance.pitch = speechPitch;
-            currentUtterance.volume = 1;
-
-            currentUtterance.onstart = function() {
-                console.log(`✓ Started chunk ${currentChunkIndex + 1}/${textChunks.length}`);
-            };
-
-            currentUtterance.onend = function() {
-                currentChunkIndex++;
-                if (isPlaying) {
-                    setTimeout(() => {
-                        if (isPlaying) {
-                            speakNextChunk();
-                        }
-                    }, 150);
-                }
-            };
-
-            currentUtterance.onerror = function(event) {
-                if (event.error === 'canceled') {
-                    isPlaying = false;
-                    return;
-                }
-
-                if (event.error === 'interrupted') {
-                    currentChunkIndex++;
-                    if (isPlaying && currentChunkIndex < textChunks.length) {
-                        setTimeout(() => {
-                            if (isPlaying) {
-                                speakNextChunk();
-                            }
-                        }, 300);
-                    }
-                    return;
-                }
-
-                console.error('Speech error:', event.error);
-                currentChunkIndex++;
-                if (isPlaying && currentChunkIndex < textChunks.length) {
-                    setTimeout(() => speakNextChunk(), 500);
-                } else {
-                    isPlaying = false;
-                    updateStatus('❌ Reading failed');
-                }
-            };
-
+        currentUtterance.onend = function() {
+            currentChunkIndex++;
             if (isPlaying) {
-                speechSynthesis.speak(currentUtterance);
+                setTimeout(() => {
+                    if (isPlaying) speakNextChunk();
+                }, 150);
             }
+        };
 
-        } catch (error) {
-            console.error('Error creating utterance:', error);
-            updateStatus('❌ Error in speech synthesis');
-            isPlaying = false;
+        currentUtterance.onerror = function(event) {
+            if (event.error === 'canceled') {
+                isPlaying = false;
+                return;
+            }
+            
+            currentChunkIndex++;
+            if (isPlaying && currentChunkIndex < textChunks.length) {
+                setTimeout(() => speakNextChunk(), 300);
+            } else {
+                isPlaying = false;
+                updateStatus('❌ Reading failed');
+            }
+        };
+
+        if (isPlaying) {
+            speechSynthesis.speak(currentUtterance);
         }
     }
 
     function speakText() {
         if (!('speechSynthesis' in window)) {
-            updateStatus('❌ Text-to-speech not supported in this browser');
+            updateStatus('❌ Text-to-speech not supported');
             return;
         }
 
         if (isPlaying) {
             updateStatus('⚠️ Already reading... Please stop first.');
-            setTimeout(() => updateStatus('Ready to read your content'), 2000);
             return;
         }
 
-        // Get text from the textarea or session state
         let textToSpeak = '';
         
-        // Try to get text from the textarea first
-        const textElements = parent.document.querySelectorAll('textarea');
+        // Get text from textarea - try multiple selectors
+        const parentDoc = window.parent.document;
+        
+        // Try different ways to get the textarea
+        let textElements = parentDoc.querySelectorAll('textarea[data-testid*="textArea"]');
+        if (!textElements.length) {
+            textElements = parentDoc.querySelectorAll('textarea');
+        }
+        
         for (let element of textElements) {
             if (element.value && element.value.trim().length > 5) {
                 textToSpeak = element.value;
                 break;
             }
         }
-        
-        // If no text in textarea, try to get from session state
+
+        // Fallback: try to get text from any visible textarea
         if (!textToSpeak) {
-            try {
-                // This is a way to access Streamlit's session state from JavaScript
-                const streamlitDoc = window.parent.document;
-                if (streamlitDoc) {
-                    // This is a bit of a hack to get the session state
-                    // It works because Streamlit stores the component's args in a script tag
-                    const scripts = streamlitDoc.getElementsByTagName('script');
-                    for (let script of scripts) {
-                        if (script.textContent.includes('setFrameValue')) {
-                            const match = script.textContent.match(/setFrameValue\([^,]+,\s*([^)]+)\)/);
-                            if (match && match[1]) {
-                                const state = JSON.parse(match[1]);
-                                if (state && state.tts_text) {
-                                    textToSpeak = state.tts_text;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+            const allTextareas = parentDoc.querySelectorAll('textarea');
+            for (let textarea of allTextareas) {
+                if (textarea.offsetParent !== null && textarea.value && textarea.value.trim().length > 5) {
+                    textToSpeak = textarea.value;
+                    break;
                 }
-            } catch (e) {
-                console.error('Error accessing session state:', e);
             }
         }
 
         if (!textToSpeak || textToSpeak.trim().length < 5) {
             updateStatus('❌ No text found to read. Please enter some text first.');
-            setTimeout(() => updateStatus('Ready to read your content'), 3000);
             return;
         }
 
-        updateStatus('🔄 Preparing to read...');
-
         speechSynthesis.cancel();
-
+        
         setTimeout(() => {
             textChunks = splitTextIntoChunks(textToSpeak);
             currentChunkIndex = 0;
@@ -897,11 +645,9 @@ def create_modern_tts_component():
             isPaused = false;
 
             updateStatus(`🚀 Starting to read ${textChunks.length} parts...`);
-
+            
             setTimeout(() => {
-                if (isPlaying) {
-                    speakNextChunk();
-                }
+                if (isPlaying) speakNextChunk();
             }, 200);
         }, 300);
     }
@@ -911,7 +657,7 @@ def create_modern_tts_component():
         isPaused = false;
         speechSynthesis.cancel();
         updateStatus('⏹️ Reading stopped');
-
+        
         setTimeout(() => {
             currentChunkIndex = 0;
             textChunks = [];
@@ -928,7 +674,6 @@ def create_modern_tts_component():
             updateStatus('⏸️ Reading paused');
         } else {
             updateStatus('⚠️ Nothing to pause');
-            setTimeout(() => updateStatus('Ready to read your content'), 2000);
         }
     }
 
@@ -938,9 +683,8 @@ def create_modern_tts_component():
             isPaused = false;
             isPlaying = true;
             updateStatus(`▶️ Resuming... (part ${currentChunkIndex + 1} of ${textChunks.length})`);
-        } else if (!isPaused && !isPlaying) {
+        } else {
             updateStatus('⚠️ Nothing to resume. Click "Read Aloud" to start.');
-            setTimeout(() => updateStatus('Ready to read your content'), 3000);
         }
     }
 
@@ -953,18 +697,14 @@ def create_modern_tts_component():
     """
 
 
-# Main tabs with content cards
+# Main tabs
 tab1, tab2 = st.tabs(["🌐 Web Content Extractor", "📝 Text Input"])
 
 with tab1:
     st.markdown('''
     <div class="content-card">
-        <div class="section-header">
-            🌐 Web Content Extractor
-        </div>
-        <div class="section-subtitle">
-            Enter a URL to extract and listen to article content with AI-powered extraction
-        </div>
+        <div class="section-header">🌐 Web Content Extractor</div>
+        <div class="section-subtitle">Enter a URL to extract and listen to article content</div>
     </div>
     ''', unsafe_allow_html=True)
 
@@ -976,37 +716,33 @@ with tab1:
     )
 
     if url_input:
-        with st.spinner("🔍 Extracting content with AI..."):
+        with st.spinner("🔍 Extracting content..."):
             result = extract_content_multiple_methods(url_input)
 
         if result["method"] != "error":
-            st.success(
-                f"✅ Content extracted successfully using {result['method']}")
+            st.success(f"✅ Content extracted using {result['method']}")
+            
             if result["title"]:
                 st.info(f"📄 **Title:** {result['title']}")
 
             st.markdown('''
             <div class="content-card">
-                <div class="section-header">
-                    📝 Review & Edit Content
-                </div>
-                <div class="section-subtitle">
-                    Verify the extracted content and make any necessary edits before reading
-                </div>
+                <div class="section-header">📝 Review & Edit Content</div>
+                <div class="section-subtitle">Verify the content and make edits before reading</div>
             </div>
             ''', unsafe_allow_html=True)
 
             verified_content = st.text_area(
                 "",
                 value=result["content"],
-                height=350,
+                height=300,
                 key="web_content",
                 label_visibility="collapsed"
             )
 
             if verified_content:
                 st.markdown("### 🎙️ Text-to-Speech Controls")
-                components.html(create_modern_tts_component(), height=750)
+                components.html(create_tts_component(), height=600)
 
         else:
             st.error(f"❌ {result['content']}")
@@ -1014,84 +750,28 @@ with tab1:
 with tab2:
     st.markdown('''
     <div class="content-card">
-        <div class="section-header">
-            📝 Text Input
-        </div>
-        <div class="section-subtitle">
-            Enter your text here to listen to it with AI-powered text-to-speech
-        </div>
-    </div>''', unsafe_allow_html=True)
+        <div class="section-header">📝 Text Input</div>
+        <div class="section-subtitle">Enter your text here to listen to it with text-to-speech</div>
+    </div>
+    ''', unsafe_allow_html=True)
 
-    # Text input area with responsive height
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.markdown("<div class='responsive-textarea-container'>",
-                    unsafe_allow_html=True)
-        text_input = st.text_area(
-            "",
-            placeholder="Enter your text here...",
-            label_visibility="collapsed",
-            key="text_input",
-            height=200
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
+    text_input = st.text_area(
+        "",
+        placeholder="Enter your text here...",
+        label_visibility="collapsed",
+        key="text_input",
+        height=200
+    )
 
-    # Add some space
-    st.write("")
-
-    # TTS Controls
+    # Always show the TTS component
+    st.markdown("### 🎙️ Text-to-Speech Controls")
+    
     if text_input.strip():
-        st.markdown("### 🎙️ Text-to-Speech Controls")
-
-        # Store the text in the session state to make it accessible to the TTS component
-        if 'tts_text' not in st.session_state:
-            st.session_state.tts_text = ""
-        st.session_state.tts_text = text_input
-
-        # Add the TTS component with responsive height
-        st.markdown("<div class='responsive-tts-container'>",
-                    unsafe_allow_html=True)
-        components.html(create_modern_tts_component(), height=500)
-        st.markdown("</div>", unsafe_allow_html=True)
+        # Store text in session state for the component to access
+        st.session_state.current_text = text_input
+        components.html(create_tts_component(), height=600)
     else:
-        st.info(
-            "✏️ Click here after entering the text above to enable the Text-to-Speech controls.")
-
-    # Add responsive styles
-    st.markdown("""
-    <style>
-        .responsive-textarea-container {
-            width: 100%;
-            margin-bottom: 1.5rem;
-        }
-        
-        .responsive-tts-container {
-            width: 100%;
-            margin: 0 auto;
-        }
-        
-        @media (max-width: 768px) {
-            .responsive-textarea-container {
-                margin-bottom: 1rem;
-            }
-            
-            .responsive-tts-container {
-                height: auto !important;
-            }
-            
-            iframe {
-                min-height: 400px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .responsive-textarea-container textarea {
-                min-height: 200px !important;
-            }
-            
-            .responsive-tts-container iframe {
-                min-height: 450px;
-            }
-        }
-    </style>
-    """, unsafe_allow_html=True)
+        # Show component even with no text, but with a message
+        st.session_state.current_text = ""
+        components.html(create_tts_component(), height=600)
+        st.info("✏️ Enter text above to enable reading.")
