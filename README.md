@@ -1,14 +1,17 @@
 # Speech-to-Text Web Application
 
 A Streamlit-based web application that provides speech-to-text and text-to-speech functionality with a modern, responsive UI.
+Crawl It is a web-based application that transforms reading into listening. Extract clean text content from any web article and convert it to natural-sounding speech with text-to-speech controls. Perfect for accessibility, multitasking, or consuming content on the go.
 
-## Features
+## Features:
 
-- **Speech-to-Text**: Convert spoken words into text using your device's microphone
-- **Text-to-Speech**: Convert written text into natural-sounding speech
-- **Responsive Design**: Works on both desktop and mobile devices
-- **Modern UI**: Clean, intuitive interface with glassmorphism design elements
-- **Article Summarization**: Extract and process text from web articles
+- 🌐 Smart web content extraction from any URL
+- 🔊 Text-to-speech with voice customization  
+- 📱 Responsive design for mobile and desktop
+- 🎛️ Advanced controls (speed, pitch, voice selection depending on the language supported by your device)
+- 📝 Manual text input support
+- 🎨 Modern glassmorphism UI design
+- ♿ Accessibility-focused interface
 
 ## Installation
 
